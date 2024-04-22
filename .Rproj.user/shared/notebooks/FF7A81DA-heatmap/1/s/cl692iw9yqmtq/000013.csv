@@ -1,0 +1,6 @@
+"0",""
+"0","rwbcols <- c(""#D33F6A"",""#E07B91"",""#E6AFB9"",""#f4fcfc"",""#B5BBE3"", ""#8595E1"", ""#4A6FE3"")"
+"0","pheatmap(Taxa, "
+"0","         fontsize_row = 8, fontsize_col = 5, cluster_cols = TRUE, cluster_rows = F,"
+"0","         color = colorRampPalette(rev(rwbcols))(100),"
+"0","         cellwidth = 7, cellheight = 12)"

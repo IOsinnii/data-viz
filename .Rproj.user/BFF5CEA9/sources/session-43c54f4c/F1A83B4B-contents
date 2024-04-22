@@ -1,0 +1,71 @@
+---
+title: "ggplot heatmap"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+# Required libraries
+library(ggplot2)
+library(gridExtra)
+
+# Ensure consistent width and x-axis scales
+common_width <- 1  # Common width for tiles in both plots
+aspect_ratio_p1 <- 12 / 7
+aspect_ratio_p2 <- 1.5
+
+# Plotting main heatmap
+p1 <- ggplot(Taxa_long, aes(x = ColumnName, y = RowNames, fill = Value)) +
+  geom_tile(width = common_width, color = "grey60") +
+  scale_fill_gradientn(colors = colorRampPalette(rev(rwbcols))(100)) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(size = 5, angle = 45, hjust = 1),
+    axis.text.y = element_text(size = 6),
+    axis.title = element_blank(),
+    legend.title = element_text(size = 7),  # Smaller legend title
+    legend.text = element_text(size = 7),  # Smaller legend text
+    legend.key.size = unit(0.4, "cm")  # Smaller legend keys
+  ) +
+  coord_fixed(ratio = aspect_ratio_p1) +
+  scale_x_discrete(position = "bottom")  # Ensuring the x-axis is at the bottom
+
+# Plotting the annotation data with customized axis labels
+p2 <- ggplot(annotation_table_long, aes(x = Publication, y = Parameter, fill = Value)) +
+  geom_tile(width = common_width, height = 0.8, color = "grey60") +
+  scale_fill_manual(values = all_colors) +
+  theme_void() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1, size = 7, color = "black"),
+    axis.text.y = element_text(angle = 0, hjust = 1, size = 8, color = "black"),
+    axis.title.x = element_text(size = 8, face = "bold"),
+    axis.title.y = element_text(size = 8, face = "bold"),
+    legend.title = element_text(size = 7),
+    legend.text = element_text(size = 7),
+    legend.key.size = unit(0.4, "cm")
+  ) +
+  labs(
+    x = "Number of publication",
+    y = " ",  # Rename Y axis
+    fill = "Value"
+  ) +
+  coord_fixed(ratio = aspect_ratio_p2) +
+  scale_x_discrete(position = "top")  # Position the x-axis at the top
+
+# Arrange plots including annotations (simple vertical arrangement example)
+grid.arrange(p2, p1, ncol = 1, heights = c(1, 1.5))  # Adjusting heights ratio if necessary
+
+```
+
+```{r}
+#| echo: false
+
+```

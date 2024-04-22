@@ -1,0 +1,5 @@
+"0","Taxa<-read_xlsx(""./../input/Literature_HeatMap_Data_Ivan3.xlsx"", sheet = 1) "
+"0","Taxa <- tibble::column_to_rownames(Taxa, var = names(Taxa)[1])"
+"0",""
+"0","annotation_table <- read_xlsx(""./../input/Literature_HeatMap_Data_Ivan3.xlsx"", sheet = 2)"
+"0","annotation_table <- tibble::column_to_rownames(annotation_table, var = names(annotation_table)[1])"

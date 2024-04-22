@@ -1,0 +1,6 @@
+"0","pheatmap(Taxa, "
+"0","         fontsize_row = 8, fontsize_col = 5, cluster_cols = FALSE, cluster_rows = FALSE,"
+"0","         color = colorRampPalette(rev(rwbcols))(100),"
+"0","         cellwidth = 7, cellheight = 12,"
+"0","         annotation_col=annotation_table, annotation_colors = ann_colors, border_color = ""grey60"""
+"0","         )"
