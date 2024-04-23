@@ -14,17 +14,15 @@ number-sections: true
 fig-cap-location: margin
 ---
 
+![A snippet of the fully formated figure from real publication](intro2.png) 
 
-![](intro2.png)
 ![](intro.png)
-
-
 
 # Introduction
 
-This is a sample plot mapping the clinical information collected from literature meta-analysis. In this demonstration the data were taken from [this]('https://www.nature.com/articles/s41591-018-0308-z') study and reduced for convenience. Authors manually extracted bacterial abundance measurment data (16S rRNA seq analysis) for given taxonomic units and transformed an increase or decrease in certain categories from integers -3 up to 3 where 0 means no change in diseases. This is a basis for making a simple heatmap based on bacterial data only.
+This is a sample plot mapping the clinical information collected from literature meta-analysis. In this demonstration the data were taken from [this](https://www.nature.com/articles/s41591-018-0308-z) study and reduced for convenience. Authors manually extracted bacterial abundance measurment data (16S rRNA seq analysis) for given taxonomic units and transformed an increase or decrease in certain categories from integers -3 up to 3 where 0 means no change in diseases. This is a basis for making a simple heatmap based on bacterial data only.
 
-In rows we see different taxa and in columns we see different studies (papers) numbered from 1 to 20. The power of this figure is hovewer in combining visual bacterial changes with visual clinical parameter trends extracted from publications manually. The latter would allow us to see whether any ...
+In rows we see different taxa and in columns we see different studies (papers) numbered from 1 to 20. The power of this figure is hovewer in combining visual bacterial changes information with visual clinical parameter trends extracted from publications manually. The latter would allow us to see whether any results are caused or associated with particular patient characteristics of study techniques.
 
 # Loading data and dependencies
 
