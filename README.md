@@ -1,8 +1,8 @@
-# Project Title
-A brief description of the project.
+# Data Viz
+Repository for sharing my experiences with biological data visualization
 ## Input
-Description of the input folder's contents.
+4 xlsx table containing species abundance data and annotation data. 2 for pheatmap method and 2 for ggplot2
 ## Output
-Description of the output folder's contents.
+figures produced by the script
 ## R
-Description of the R scripts and their purposes.
+Quarto reports with the execution code and comments
