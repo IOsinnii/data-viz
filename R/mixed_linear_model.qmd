@@ -1,0 +1,50 @@
+---
+title: "1"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+install.packages("lme4")
+install.packages("broom.mixed")
+library(lme4)
+library(broom)
+library(broom.mixed)
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+data("sleepstudy")
+head(sleepstudy)
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+```{r}
+# Fit the mixed model again
+model <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy)
+
+# Use augment from broom.mixed
+fitted_data <- augment(model)
+
+
+```
+
+```{r}
+library(ggplot2)
+
+# Plotting the data with ggplot2
+ggplot(sleepstudy, aes(x = Days, y = Reaction, group = Subject)) +
+  geom_line(data = fitted_data, aes(y = .fitted), color = "red")  # add fitted model
+
+```

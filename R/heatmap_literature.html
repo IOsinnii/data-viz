@@ -183,7 +183,7 @@ Note
 </section>
 <section id="loading-data-and-dependencies" class="level1" data-number="2">
 <h1 data-number="2"><span class="header-section-number">2</span> Loading data and dependencies</h1>
-<p>For this data analysis we will need next <strong>R packages</strong>: <em>tidyverse</em>, <em>pheatmap</em>, <em>RColorBrewer</em>, <em>readxl</em>, <em>gridExtra</em></p>
+<p>For this data analysis we will need next R packages: <strong>tidyverse</strong>, <strong>pheatmap</strong>, <strong>RColorBrewer</strong>, <strong>readxl</strong>, <strong>gridExtra</strong></p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -194,7 +194,7 @@ Note
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gridExtra)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>Let us load a data directly from Excel file using read_xlsx function from <em>readxl</em> package This data is taken from this publication and us used as a small subset. Table Taxa contains the name of taxonomic units in rows and different publication numbers in columns. As experimental outcome values the bacterial abundance change on the scale from -3 to 3 is presented. -3, -2, -1 can be interpreted as bacterial decrease in very severe/severe/light disease stage and so positive values. Alternatively, one can assign to different decrease degrees different diseases or other clinical parameters.</p>
+<p>Let us load a data directly from Excel file using read_xlsx function from <strong>readxl</strong> package This data is taken from this publication and us used as a small subset. Table Taxa contains the name of taxonomic units in rows and different publication numbers in columns. As experimental outcome values the bacterial abundance change on the scale from -3 to 3 is presented. -3, -2, -1 can be interpreted as bacterial decrease in very severe/severe/light disease stage and so positive values. Alternatively, one can assign to different decrease degrees different diseases or other clinical parameters.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -382,6 +382,55 @@ Note
 <section id="acknowledgements" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="acknowledgements"><span class="header-section-number">4.1</span> Acknowledgements</h2>
 <p>Many thanks to Prof.&nbsp;Yilmaz (UniBern) for data sample and help with learning this type of plot</p>
+<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+Session Information
+</button>
+<div id="collapseOne" class="accordion-collapse collapse">
+<div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>R version 4.3.3 (2024-02-29)
+Platform: aarch64-apple-darwin20 (64-bit)
+Running under: macOS Sonoma 14.3
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRblas.0.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+time zone: Europe/Zurich
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] gridExtra_2.3      readxl_1.4.3       lubridate_1.9.3    forcats_1.0.0     
+ [5] stringr_1.5.1      dplyr_1.1.4        purrr_1.0.2        readr_2.1.5       
+ [9] tidyr_1.3.1        tibble_3.2.1       ggplot2_3.5.0      tidyverse_2.0.0   
+[13] RColorBrewer_1.1-3 pheatmap_1.0.12   
+
+loaded via a namespace (and not attached):
+ [1] gtable_0.3.4      jsonlite_1.8.8    compiler_4.3.3    tidyselect_1.2.1 
+ [5] scales_1.3.0      yaml_2.3.8        fastmap_1.1.1     R6_2.5.1         
+ [9] labeling_0.4.3    generics_0.1.3    knitr_1.45        htmlwidgets_1.6.4
+[13] munsell_0.5.1     tzdb_0.4.0        pillar_1.9.0      rlang_1.1.3      
+[17] utf8_1.2.4        stringi_1.8.3     xfun_0.43         timechange_0.3.0 
+[21] cli_3.6.2         withr_3.0.0       magrittr_2.0.3    digest_0.6.35    
+[25] grid_4.3.3        rstudioapi_0.16.0 hms_1.1.3         lifecycle_1.0.4  
+[29] vctrs_0.6.5       evaluate_0.23     glue_1.7.0        farver_2.1.1     
+[33] cellranger_1.1.0  fansi_1.0.6       colorspace_2.1-0  rmarkdown_2.26   
+[37] tools_4.3.3       pkgconfig_2.0.3   htmltools_0.5.8.1</code></pre>
+</div>
+</div>
+</div>
+</div>
 </section>
 </section>
 

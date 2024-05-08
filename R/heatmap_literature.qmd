@@ -13,6 +13,7 @@ toc-location: left
 number-sections: true
 fig-cap-location: margin
 ---
+
 ::: {.callout-note collapse="true"}
 This is a Quarto document which nicely combines both R code, its results and text explanation to enable an easy and interactive access for both learners, readers and supervisors to such analyses. To learn more about Quarto see <https://quarto.org>. By default all code lines are blended, but you can show them by clicking on the code button.
 :::
@@ -29,7 +30,7 @@ In rows we see different taxa and in columns we see different studies (papers) n
 
 # Loading data and dependencies
 
-For this data analysis we will need next **R packages**: *tidyverse*, *pheatmap*, *RColorBrewer*, *readxl*, *gridExtra*
+For this data analysis we will need next R packages: **tidyverse**, **pheatmap**, **RColorBrewer**, **readxl**, **gridExtra**
 
 ```{r, message=F, warning=F}
 library(pheatmap)
@@ -39,7 +40,7 @@ library(readxl)
 library(gridExtra)
 ```
 
-Let us load a data directly from Excel file using read_xlsx function from *readxl* package This data is taken from this publication and us used as a small subset. Table Taxa contains the name of taxonomic units in rows and different publication numbers in columns. As experimental outcome values the bacterial abundance change on the scale from -3 to 3 is presented. -3, -2, -1 can be interpreted as bacterial decrease in very severe/severe/light disease stage and so positive values. Alternatively, one can assign to different decrease degrees different diseases or other clinical parameters.
+Let us load a data directly from Excel file using read_xlsx function from **readxl** package This data is taken from this publication and us used as a small subset. Table Taxa contains the name of taxonomic units in rows and different publication numbers in columns. As experimental outcome values the bacterial abundance change on the scale from -3 to 3 is presented. -3, -2, -1 can be interpreted as bacterial decrease in very severe/severe/light disease stage and so positive values. Alternatively, one can assign to different decrease degrees different diseases or other clinical parameters.
 
 ```{r, message=F, warning=F}
 
@@ -189,3 +190,13 @@ ggplot2.plot <- grid.arrange(p2, p1, ncol = 1, heights = c(1, 4.1))
 ## Acknowledgements
 
 Many thanks to Prof. Yilmaz (UniBern) for data sample and help with learning this type of plot
+
+
+
+<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" >Session Information</button><div id="collapseOne" class="accordion-collapse collapse"><div>
+
+```{r}
+sessionInfo()
+```
+
+</div></div>
