@@ -4,7 +4,7 @@ subtitle: "Biological data visualization"
 title-block-banner: "#f0f3f5"
 title-block-banner-color: "black"
 author: "Ivan Osinnii"
-date: "22 April 2024"
+date: "28 December 2024"
 format: html
 code-fold: true
 editor: visual
@@ -191,12 +191,18 @@ ggplot2.plot <- grid.arrange(p2, p1, ncol = 1, heights = c(1, 4.1))
 
 Many thanks to Prof. Yilmaz (UniBern) for data sample and help with learning this type of plot
 
+<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
 
+Session Information
 
-<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" >Session Information</button><div id="collapseOne" class="accordion-collapse collapse"><div>
+</button>
+
+:::: {#collapseOne .accordion-collapse .collapse}
+<div>
 
 ```{r}
 sessionInfo()
 ```
 
-</div></div>
+</div>
+::::
