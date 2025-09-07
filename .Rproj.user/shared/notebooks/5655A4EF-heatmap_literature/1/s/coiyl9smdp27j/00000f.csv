@@ -1,8 +1,0 @@
-"0",""
-"0","ann_colors = list("
-"0","  Gender = c(Less=""#3399FF"", More=""#cc6666"", Unknown=""#f4fcfc""), "
-"0","  Sample_Type = c(Biopsy=""#efe9d0"", Stool=""#ccbb74"", Stool_Biopsy=""#bc5607""),"
-"0","  Sample_Size = c(LessThanFifty=""#cff7d5"",Between50_100=""#a5f7b0"", Between101_200=""#78e887"", MoreThan200=""#47a354""),"
-"0","  Median_Age = c(BetweenTenTwenty=""#e1e8f4"",BetweenThirtyFourty=""#c1d3f2"", BetweenThirtyFifty=""#94b6ef"", BetweenFiftySeventy=""#6d98e0"", Unknown=""#f4fcfc""),"
-"0","  RaceEthnicity = c(MostlyCaucasian=""#aaf2ff"", Indian=""brown"", Japanese=""#e5f98b"", Han= ""#efb94c"", Korean = ""#cc6666"", Unknown=""#f4fcfc""),"
-"0","  Method = c(RT_PCR=""#e9e3ef"", R454=""#c3a9e5"",  MiSeq=""#a276db"", HiSeq=""#7b45c1"", Other=""#f4fcfc""))"
