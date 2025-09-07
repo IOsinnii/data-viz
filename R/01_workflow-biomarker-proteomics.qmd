@@ -1,0 +1,410 @@
+---
+title: "Biomarkers analysis on proteomics data"
+subtitle: "PLS-DA Analysis for Age Group Comparison"
+author: "Ivan Osinnii"
+date: "25 May 2025"
+format:
+  lumo-html:
+    page-layout: full
+    logo: "" 
+  # github-repo:"https://github.com/holtzy/lumo" # Op-l. Adds a github corner at the top right
+    primary-color: "#69b3a2"
+    self-contained: true
+    is-particlejs-enabled: true
+    bg-image: "_assets/oils_bg.png"              
+execute:
+  warning: false
+  message: false
+  cache: true
+params:
+  data_file: "31642809_Age_Group.csv"
+  group1: "80+"
+  group2: "20-34"
+  n_features: 15
+  lasso_alpha: 0.01
+  random_seed: 42
+editor_options: 
+  chunk_output_type: console
+---
+# Introduction
+
+This is an intermediate R analysis example using simple machine learning techniques applied to biomarker discovery actually replicated from Python workflow with scikit.learn methods. Here we use R analogues from mixOmics (PLS-DA), glmnet (LASSO) and e1071 (SVM).
+
+The Dataset was shared at the workshop "Open Innovations in Life Sciences" in October 2024 and had been taken from the manuscript “Discovery proteomics in aging human skeletal muscle finds change in spliceosome, immunity, proteostasis and mitochondria”. This study aimed to understand the molecular mechanisms behind the age-related decline in skeletal muscle strength, a primary cause of mobility loss and frailty in older adults. 
+
+Quantitative proteomic analysis was performed on muscle specimens collected from 58 healthy individuals, aged 20 to 87 years, after excluding two participants due to insufficient sample size. The participants were distributed across five age groups: 20–34 years (n = 13), 35–49 years (n = 11), 50–64 years (n = 12), 65–79 years (n = 12), and 80+ years (n = 10). 
+
+The analysis revealed that proteins related to energetic metabolism, including those associated with the TCA cycle, mitochondrial respiration, and glycolysis, were underrepresented in older individuals, while proteins involved in immune responses, proteostasis, and alternative splicing were overrepresented. These findings suggest that aging muscle is characterized by disrupted metabolic processes, a pro-inflammatory environment, and increased protein degradation. RNA-seq analysis further confirmed changes in alternative splicing with age, implying that the splicing machinery adapts to increased cellular damage in aging muscle.
+
+# Loading data and dependencies
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, cache= TRUE)
+
+# Initialize renv for reproducible package management
+if (!require("renv", quietly = TRUE)) {
+  install.packages("renv")
+  library(renv)
+}
+
+# Initialize renv if not already done (run once per project)
+if (!file.exists("renv.lock")) {
+  renv::init()
+} else {
+  # Restore packages from lockfile
+  renv::restore()
+}
+
+# Install and load required packages using pacman
+# pacman will install packages if they are not already present
+if (!requireNamespace("pacman", quietly = TRUE)) install.packages("pacman")
+pacman::p_load(
+  tidyverse,    # For data manipulation and plotting (includes ggplot2, dplyr, etc.)
+  here,         # For robust file path construction
+  mixOmics,  # For PLS-DA and PCA analysis
+  gridExtra, # For arranging multiple ggplot objects
+  glmnet,       # For Lasso regression
+  caret,        # For data splitting and preprocessing
+  plotly,  # For interactive plots
+  e1071,        # For SVM
+  DT, # For interactive data tables,
+  corrplot,     # For correlation plots,
+  RColorBrewer,# For color palettes
+  pls # For Partial Least Squares regression
+)
+
+# Take a snapshot of current package versions
+renv::snapshot()
+```
+
+
+```{r data-loading}
+# Load the data
+df <- read.csv(file.path("..", "input", params$data_file), stringsAsFactors = FALSE)
+
+cat("Dataset dimensions:", nrow(df), "rows x", ncol(df), "columns\n")
+
+# Display first few rows
+# head(df) %>% 
+#   DT::datatable(options = list(scrollX = TRUE, pageLength = 5))
+```
+
+## **Exploratory Data Analysis: Unsupervised vs Supervised Dimensionality Reduction**
+
+Principal Component Analysis (PCA) serves as the initial exploratory technique, revealing natural clustering patterns in the biomarker data without considering group labels. This unsupervised approach helps identify inherent data structure and potential age-related separation.
+
+```{r pca-all-groups}
+# Prepare data for PCA
+intensity_data <- df %>% 
+  select(-Sample_Name, -Age_Group) %>% 
+  mutate_all(as.numeric)
+
+group_info <- df$Age_Group
+
+# Perform PCA
+pca_result <- prcomp(intensity_data, scale. = TRUE)
+pca_scores <- data.frame(pca_result$x[,1:2], Age_Group = group_info)
+
+# Calculate explained variance
+var_explained <- round(summary(pca_result)$importance[2,1:2] * 100, 2)
+
+# Create PCA plot
+colors <- c("80+" = "red", "20-34" = "blue", "35-49" = "green", 
+           "50-64" = "orange", "65-79" = "purple")
+
+pca_plot <- ggplot(pca_scores, aes(x = PC1, y = PC2, color = Age_Group)) +
+  geom_point(alpha = 0.7, size = 3) +
+  scale_color_manual(values = colors) +
+  labs(title = "PCA Plot - All Age Groups",
+       x = paste0("PC1 (", var_explained[1], "%)"),
+       y = paste0("PC2 (", var_explained[2], "%)")) +
+  theme_minimal() +
+  theme(legend.position = "right")
+
+print(pca_plot)
+```
+
+## **PLS-DA Analysis (All Groups)**
+
+Partial Least Squares Discriminant Analysis (PLS-DA) follows as a supervised alternative, explicitly incorporating age group information to maximize between-group separation. The addition of 95% confidence ellipses provides statistical context for group boundaries and overlap assessment.
+
+```{r plsda-all-groups-fixed}
+
+# Remove any rows with missing values
+complete_rows <- complete.cases(intensity_data)
+intensity_clean <- intensity_data[complete_rows, ]
+group_clean <- group_info[complete_rows]
+
+cat("After cleaning - Intensity data:", dim(intensity_clean), "\n")
+cat("After cleaning - Group info length:", length(group_clean), "\n")
+
+X <- as.matrix(intensity_clean)
+Y <- as.factor(group_clean)
+
+# Check for constant/zero variance columns
+zero_var_cols <- apply(X, 2, var, na.rm = TRUE) == 0
+if (sum(zero_var_cols) > 0) {
+  cat("Removing", sum(zero_var_cols), "zero variance columns\n")
+  X <- X[, !zero_var_cols]
+}
+# Alternative PLS-DA implementation using pls package
+Y_numeric <- as.numeric(Y)
+combined_data <- data.frame(Y = Y_numeric, X)
+
+pls_model <- plsr(Y ~ ., data = combined_data, ncomp = 2, validation = "none")
+pls_scores <- scores(pls_model)[, 1:2]
+
+# Create plot data
+plsda_scores <- data.frame(
+  comp1 = pls_scores[, 1],
+  comp2 = pls_scores[, 2],
+  Age_Group = Y
+)
+
+cat("PLS scores dimensions:", dim(plsda_scores), "\n")
+
+# Create PLS-DA plot with confidence ellipses
+plsda_plot <- ggplot(plsda_scores, aes(x = comp1, y = comp2, color = Age_Group)) +
+  geom_point(alpha = 0.7, size = 3) +
+  stat_ellipse(aes(color = Age_Group), type = "norm", linetype = "dashed", 
+               level = 0.95, size = 1) +
+  scale_color_manual(values = colors) +
+  labs(title = "PLS-DA Plot - All Age Groups",
+       x = "PLS Component 1",
+       y = "PLS Component 2") +
+  theme_minimal() +
+  theme(legend.position = "right")
+
+print(plsda_plot)
+
+# Display model summary
+summary(pls_model)
+```
+
+## **Focusing on Extreme Age Groups**
+
+To enhance discriminatory power and simplify the classification problem, the analysis narrows focus to the most physiologically distinct groups: young adults (20-34) versus elderly (80+). This binary comparison maximizes the potential for identifying age-related biomarker patterns while reducing multiclass complexity.
+
+```{r subset-data}
+# Create subset with only specified groups
+subset_data <- df %>% 
+  filter(Age_Group %in% c(params$group1, params$group2))
+
+cat("Subset dimensions:", nrow(subset_data), "rows x", ncol(subset_data), "columns\n")
+cat("Groups included:", params$group1, "vs", params$group2, "\n")
+
+# Display group counts
+table(subset_data$Age_Group)
+
+# Save subset data
+# write.csv(subset_data, "31642809_Age_Old_Young.csv", row.names = FALSE)
+# cat("Subset saved to: 31642809_Age_Old_Young.csv\n")
+```
+
+## **PLS-DA for Two-Group Comparison** {#plsda-two-groups}
+
+The binary PLS-DA visualization confirms improved separation between extreme age groups compared to the five-group analysis. This focused approach provides clearer insight into age-related biomarker changes and facilitates more robust statistical modeling.
+
+```{r plsda-two-groups}
+# Prepare intensity data and group information for subset
+subset_intensity <- subset_data %>% 
+  select(-Sample_Name, -Age_Group) %>% 
+  mutate_all(as.numeric)
+
+subset_groups <- subset_data$Age_Group
+
+# Clean data
+complete_rows_subset <- complete.cases(subset_intensity)
+subset_intensity_clean <- subset_intensity[complete_rows_subset, ]
+subset_groups_clean <- subset_groups[complete_rows_subset]
+
+# Perform PLS-DA on subset using pls package
+X_subset <- as.matrix(subset_intensity_clean)
+Y_subset_numeric <- as.numeric(as.factor(subset_groups_clean))
+
+# Remove zero variance columns
+zero_var_cols_subset <- apply(X_subset, 2, var, na.rm = TRUE) == 0
+if (sum(zero_var_cols_subset) > 0) {
+  X_subset <- X_subset[, !zero_var_cols_subset]
+}
+
+combined_subset_data <- data.frame(Y = Y_subset_numeric, X_subset)
+pls_subset_model <- plsr(Y ~ ., data = combined_subset_data, ncomp = 2, validation = "none")
+pls_subset_scores <- scores(pls_subset_model)[, 1:2]
+
+# Extract scores for plotting
+plsda_subset_scores <- data.frame(
+  comp1 = pls_subset_scores[, 1],
+  comp2 = pls_subset_scores[, 2],
+  Age_Group = subset_groups_clean
+)
+
+# Create color map for two groups
+two_group_colors <- c("80+" = "red", "20-34" = "skyblue")
+used_colors <- two_group_colors[names(two_group_colors) %in% c(params$group1, params$group2)]
+
+# Create PLS-DA plot for two groups
+plsda_two_plot <- ggplot(plsda_subset_scores, aes(x = comp1, y = comp2, color = Age_Group)) +
+  geom_point(alpha = 0.7, size = 3) +
+  scale_color_manual(values = used_colors) +
+  labs(title = paste("PLS-DA Plot -", params$group1, "vs", params$group2),
+       x = "PLS Component 1",
+       y = "PLS Component 2") +
+  theme_minimal() +
+  theme(legend.position = "right")
+
+print(plsda_two_plot)
+
+# Display model summary
+summary(pls_subset_model)
+```
+
+## **Feature Selection with LASSO and Biomarker Identification**
+
+Lasso regression with L1 regularization performs automated feature selection, identifying the most discriminative biomarkers while preventing overfitting. The sparse solution highlights 15 key features that contribute most significantly to age group classification, reducing dimensionality from hundreds to a manageable subset.
+
+```{r lasso-feature-selection}
+# Prepare data for LASSO
+X_matrix <- as.matrix(subset_intensity)
+y_binary <- ifelse(subset_groups == params$group1, 1, 0)
+
+# Standardize features
+X_scaled <- scale(X_matrix)
+
+# Perform LASSO regression
+set.seed(params$random_seed)
+lasso_model <- glmnet(X_scaled, y_binary, alpha = 1, lambda = params$lasso_alpha)
+
+# Extract coefficients and select top features
+lasso_coef <- as.matrix(coef(lasso_model))
+lasso_coef_abs <- abs(lasso_coef[-1,])  # Remove intercept
+top_features_idx <- order(lasso_coef_abs, decreasing = TRUE)[1:params$n_features]
+top_features <- colnames(subset_intensity)[top_features_idx]
+
+cat("Top", params$n_features, "features selected using LASSO:\n")
+for(i in 1:length(top_features)) {
+  cat(i, ".", top_features[i], "\n")
+}
+
+# Create coefficient plot
+coef_df <- data.frame(
+  Feature = names(lasso_coef_abs[top_features_idx]),
+  Coefficient = lasso_coef_abs[top_features_idx]
+)
+
+coef_plot <- ggplot(coef_df, aes(x = reorder(Feature, Coefficient), y = Coefficient)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(title = paste("Top", params$n_features, "LASSO Selected Features"),
+       x = "Features", y = "Absolute Coefficient") +
+  theme_minimal()
+
+print(coef_plot)
+```
+
+## **Biomarker Expression Profiling**
+
+Individual biomarker visualization through box plots with overlaid swarm plots reveals the distribution patterns and expression differences between young and elderly groups. This detailed examination validates the selected features and provides biological insight into age-related changes at the molecular level.
+
+```{r feature-boxplots, fig.height=20, fig.width=15}
+# Prepare data for plotting
+plot_data <- subset_data %>% 
+  select(all_of(c("Age_Group", top_features))) %>%
+  pivot_longer(cols = -Age_Group, names_to = "Feature", values_to = "Intensity")
+
+# Create boxplots for top features
+feature_plots <- list()
+n_plots <- min(25, length(top_features))
+n_cols <- 5
+n_rows <- ceiling(n_plots / n_cols)
+
+for(i in 1:n_plots) {
+  feature_name <- top_features[i]
+  feature_data <- plot_data %>% filter(Feature == feature_name)
+  
+  p <- ggplot(feature_data, aes(x = Age_Group, y = Intensity, fill = Age_Group)) +
+    geom_boxplot(alpha = 0.7, outlier.shape = NA) +
+    geom_jitter(width = 0.2, alpha = 0.7, color = "black") +
+    scale_fill_manual(values = used_colors) +
+    labs(title = paste("Expression of", feature_name),
+         x = "Age Group", y = "Normalized Intensity") +
+    theme_minimal() +
+    theme(legend.position = "none")
+  
+  feature_plots[[i]] <- p
+}
+
+# Arrange plots in grid
+grid.arrange(grobs = feature_plots, ncol = n_cols)
+```
+
+## **Classification Performance Assessment**
+
+The final step evaluates the predictive utility of selected biomarkers through Support Vector Machine classification. The confusion matrix and performance metrics quantify the model's ability to distinguish between age groups, providing statistical validation of the biomarker panel's discriminatory power for age-related classification tasks.
+
+```{r classification}
+# Prepare data for classification
+X_top_features <- subset_intensity[, top_features]
+y_factor <- as.factor(subset_groups)
+
+# Split data into training and testing sets
+set.seed(params$random_seed)
+train_idx <- createDataPartition(y_factor, p = 0.8, list = FALSE)
+X_train <- X_top_features[train_idx, ]
+X_test <- X_top_features[-train_idx, ]
+y_train <- y_factor[train_idx]
+y_test <- y_factor[-train_idx]
+
+# Train SVM classifier
+svm_model <- svm(X_train, y_train, kernel = "linear", probability = TRUE)
+
+# Make predictions
+y_pred <- predict(svm_model, X_test)
+
+# Create confusion matrix
+conf_matrix <- confusionMatrix(y_pred, y_test)
+print(conf_matrix)
+
+# Plot confusion matrix
+conf_df <- as.data.frame(conf_matrix$table)
+conf_plot <- ggplot(conf_df, aes(x = Reference, y = Prediction, fill = Freq)) +
+  geom_tile() +
+  geom_text(aes(label = Freq), size = 12) +
+  scale_fill_gradient(low = "white", high = "blue") +
+  labs(title = "Confusion Matrix for SVM Classifier") +
+  theme_minimal()
+
+print(conf_plot)
+
+# Print accuracy
+cat("SVM Classifier Accuracy:", round(conf_matrix$overall['Accuracy'] * 100, 2), "%\n")
+```
+
+## Summary Statistics
+
+```{r summary-stats}
+# Create summary table
+summary_stats <- data.frame(
+  Metric = c("Total Samples", "Features", "Selected Features", "Training Samples", 
+             "Test Samples", "SVM Accuracy"),
+  Value = c(nrow(subset_data), ncol(subset_intensity), length(top_features),
+            length(y_train), length(y_test), 
+            paste0(round(conf_matrix$overall['Accuracy'] * 100, 2), "%"))
+)
+
+DT::datatable(summary_stats, options = list(dom = 't'))
+```
+
+# Conclusions
+
+The analysis successfully demonstrates that PLS-DA combined with LASSO feature selection can effectively distinguish between young adults (20-34) and elderly individuals (80+) using a reduced panel of 15 discriminative biomarkers, achieving high classification accuracy with SVM. This biomarker-based approach provides a robust framework for age-related molecular profiling and could potentially support clinical applications requiring age group stratification or aging biomarker discovery.
+
+# Session Information
+
+```{r session-info}
+# Display renv project information
+cat("=== renv Project Information ===\n")
+renv::status()
+
+sessionInfo()
+```

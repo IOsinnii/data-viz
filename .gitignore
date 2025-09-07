@@ -1,3 +1,134 @@
+# R and RStudio files
 *.rproj
 *.Rproj.user
 .Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.rdb
+*.rdx
+*.rds
+*.RData
+*.Rproj.user
+
+# Git files
+.git/
+*.orig
+*.rej
+
+# Bootstrap and CSS frameworks
+node_modules/
+bower_components/
+dist/
+build/
+*.min.css
+*.min.js
+bootstrap*/
+foundation*/
+bulma*/
+tailwind*/
+
+# CSS and preprocessor files
+*.css.map
+*.scss.map
+*.sass.map
+*.less.map
+.sass-cache/
+
+# JavaScript and npm
+package-lock.json
+yarn.lock
+.npm/
+.node_repl_history
+
+# Image files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.tif
+*.ico
+*.svg
+*.webp
+*.avif
+
+# PDF and document files
+*.pdf
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.ppt
+*.pptx
+
+# Video and audio files
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.mp3
+*.wav
+*.aac
+
+# Archive files
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.bz2
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# Log files
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Cache directories
+.cache/
+cache/
+*.cache
+
+# Output and build directories
+output/
+out/
+public/
+_site/
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.development
+
+# Documentation build files
+docs/_build/
+site/
