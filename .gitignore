@@ -55,9 +55,6 @@ yarn.lock
 *.avif
 
 # PDF and document files
-*.pdf
-*.doc
-*.docx
 *.xls
 *.xlsx
 *.ppt
@@ -116,12 +113,6 @@ temp/
 .cache/
 cache/
 *.cache
-
-# Output and build directories
-output/
-out/
-public/
-_site/
 
 # Environment files
 .env
