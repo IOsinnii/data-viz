@@ -55,8 +55,6 @@ yarn.lock
 *.avif
 
 # PDF and document files
-*.xls
-*.xlsx
 *.ppt
 *.pptx
 
