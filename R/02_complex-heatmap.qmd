@@ -56,10 +56,10 @@ Let us load a data directly from Excel file using read_xlsx function from **read
 
 ```{r, message=F, warning=F}
 
-Taxa <-read_xlsx("./../input/Literature_HeatMap_Data_Ivan2.xlsx", sheet = 1)
+Taxa <-read_xlsx("./../input/Literature_HeatMap_Data_for_pheatmap.xlsx", sheet = 1)
 Taxa <- tibble::column_to_rownames(Taxa, var = names(Taxa)[1])
 
-annotation_table <- read_xlsx("./../input/Literature_HeatMap_Data_Ivan2.xlsx", sheet = 2)
+annotation_table <- read_xlsx("./../input/Literature_HeatMap_Data_for_pheatmap.xlsx", sheet = 2)
 annotation_table <- tibble::column_to_rownames(annotation_table, var = names(annotation_table)[1])
 ```
 
@@ -107,10 +107,10 @@ pheatmap(Taxa,
 We slightly adjust the data changing some annotation value names
 
 ```{r, message=FALSE}
-Taxa<-read_xlsx("./../input/Literature_HeatMap_Data_Ivan3.xlsx", sheet = 1) 
+Taxa<-read_xlsx("./../input/Literature_HeatMap_Data_for_ggplot2.xlsx", sheet = 1) 
 Taxa <- tibble::column_to_rownames(Taxa, var = names(Taxa)[1])
 
-annotation_table <- read_xlsx("./../input/Literature_HeatMap_Data_Ivan3.xlsx", sheet = 2)
+annotation_table <- read_xlsx("./../input/Literature_HeatMap_Data_for_ggplot2.xlsx", sheet = 2)
 annotation_table <- tibble::column_to_rownames(annotation_table, var = names(annotation_table)[1])
 ```
 
